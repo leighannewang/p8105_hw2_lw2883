@@ -1,0 +1,21 @@
+---
+title: "homework 2"
+author: "Leighanne Wang"
+date: "9/23/2020"
+output: github_document
+---
+
+# Problem 1
+
+```{r setup}
+library(tidyverse) 
+library(readxl)
+```
+
+Read the Mr. Trashwhell dataset
+
+```{r trashwheel_df}
+trashwheel_df =
+  read_xlsx("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx")
+```
+
