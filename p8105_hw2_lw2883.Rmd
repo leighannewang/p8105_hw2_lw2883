@@ -1,7 +1,7 @@
 ---
 title: "homework 2"
 author: "Leighanne Wang"
-date: "9/23/2020"
+date: "9/24/2020"
 output: github_document
 ---
 
@@ -12,10 +12,63 @@ library(tidyverse)
 library(readxl)
 ```
 
-Read the Mr. Trashwhell dataset
+Read the Mr. Trashwheel dataset
 
 ```{r trashwheel_df}
 trashwheel_df =
-  read_xlsx("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx")
+  read_xlsx(
+    "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+    range = cell_cols("A:N")) %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>% 
+  mutate(
+    sports_balls = round(sports_balls),
+    sports_balls = as.integer(sports_balls)
+  )
+```
+
+Clean up the 2018 and 2017 precipitation data
+
+```{r precip_2018}
+precip_2018 =
+  read_excel(
+    "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+    sheet = "2018 Precipitation",
+    skip = 1
+  ) %>% 
+  janitor::clean_names() %>% 
+  drop_na(month) %>% 
+  mutate(year = 2018) %>% 
+  relocate(year)
+```
+
+```{r precip_2017}
+precip_2017 =
+  read_excel(
+    "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+    sheet = "2017 Precipitation",
+    skip = 1
+  ) %>% 
+  janitor::clean_names() %>% 
+  drop_na(month) %>% 
+  mutate(year = 2017) %>% 
+  relocate(year)
+```
+
+Combine annual precipitation
+
+```{r precip_df}
+#create a df to change the name of the months in te combined annual precipitation dataset
+month_df =
+  tibble(
+    month = 1:12,
+    month_name = month.name
+  )
+
+#bind the two precipitation data from 2018 and 2017 to combine datasets
+precip_df =
+  bind_rows(precip_2018, precip_2017)
+
+left_join(precip_df, month_df, by = "month")
 ```
 
