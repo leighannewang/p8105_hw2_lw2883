@@ -5,11 +5,17 @@ date: "9/24/2020"
 output: github_document
 ---
 
-# Problem 1
-
 ```{r setup}
-library(tidyverse) 
+library(tidyverse)
 library(readxl)
+```
+
+## Problem 1
+
+Define path to dataset
+
+```{r path_to_data}
+path_to_data = "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx"
 ```
 
 Read the Mr. Trashwheel dataset
@@ -17,22 +23,23 @@ Read the Mr. Trashwheel dataset
 ```{r trashwheel_df}
 trashwheel_df =
   read_xlsx(
-    "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+    path = path_to_data,
+    sheet = "Mr. Trash Wheel",
     range = cell_cols("A:N")) %>% 
-  janitor::clean_names() %>% 
-  drop_na(dumpster) %>% 
-  mutate(
-    sports_balls = round(sports_balls),
-    sports_balls = as.integer(sports_balls)
+    janitor::clean_names() %>% 
+    drop_na(dumpster) %>% 
+    mutate(
+      sports_balls = round(sports_balls),
+      sports_balls = as.integer(sports_balls)
   )
 ```
 
-Clean up the 2018 and 2017 precipitation data
+Read and clean up the 2018 and 2017 precipitation data
 
-```{r precip_2018}
+```{r precip 2018 2017}
 precip_2018 =
   read_excel(
-    "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+    path = path_to_data,
     sheet = "2018 Precipitation",
     skip = 1
   ) %>% 
@@ -40,12 +47,10 @@ precip_2018 =
   drop_na(month) %>% 
   mutate(year = 2018) %>% 
   relocate(year)
-```
 
-```{r precip_2017}
 precip_2017 =
   read_excel(
-    "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+    path = path_to_data,
     sheet = "2017 Precipitation",
     skip = 1
   ) %>% 
@@ -58,7 +63,7 @@ precip_2017 =
 Combine annual precipitation
 
 ```{r precip_df}
-#create a df to change the name of the months in te combined annual precipitation dataset
+#create a df to change the name of the months in the combined annual precipitation dataset
 month_df =
   tibble(
     month = 1:12,
@@ -69,6 +74,21 @@ month_df =
 precip_df =
   bind_rows(precip_2018, precip_2017)
 
-left_join(precip_df, month_df, by = "month")
+precip_df =
+  left_join(precip_df, month_df, by = "month")
 ```
+
+#### Trashwheel Dataset
+The 'trashwheel_df' dataset contains information from the Mr. Trashwheel trash collector in Baltimore, Maryland from 2014 to 2019. It contains information on the number of dumpsters, date the trash was collected (including month and year), the amount of trash collected in weight (tons) and volume (cubic yards) and includes some types of trash that was collected such as plastic bottles and grocery bags. Finally, it also shows the number of homes powered from the collected trash. There are a total of `r nrow(trashwheel_df)` observations in our final dataset.
+
+* The median number of sports balls found in the dumpster in 2017 was **`r trashwheel_df %>% filter(year == 2017) %>% pull(sports_balls) %>% median()`**.
+* The total weight of trash collected was **`r trashwheel_df %>% pull(weight_tons) %>% sum()` tons** and **`r trashwheel_df %>% pull(volume_cubic_yards) %>% sum()`** cubic yards.
+* The total number of homes powered is **`r trashwheel_df %>% pull(homes_powered) %>% sum()`**.
+
+#### Precipitation Dataset
+The 'precip_df' dataset contains information for the annual precipitation for the years 2017 and 2018 shown by month. There are a total of `r nrow(precip_df)` observations in our final dataset.
+
+* The total precipitation in 2018 was **`r precip_df %>% filter(year == 2018) %>% pull(total) %>% sum()` inches**.
+* The total precipitation in 2017 was **`r precip_df %>% filter(year == 2017) %>% pull(total) %>% sum()` inches**.
+
 
