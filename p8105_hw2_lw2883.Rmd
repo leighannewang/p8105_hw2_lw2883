@@ -8,14 +8,15 @@ output: github_document
 ```{r setup}
 library(tidyverse)
 library(readxl)
+library(haven)
 ```
 
 ## Problem 1
 
 Define path to dataset
 
-```{r path_to_data}
-path_to_data = "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx"
+```{r path_to_data_trash}
+path_to_data_trash = "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx"
 ```
 
 Read the Mr. Trashwheel dataset
@@ -23,7 +24,7 @@ Read the Mr. Trashwheel dataset
 ```{r trashwheel_df}
 trashwheel_df =
   read_xlsx(
-    path = path_to_data,
+    path = path_to_data_trash,
     sheet = "Mr. Trash Wheel",
     range = cell_cols("A:N")) %>% 
     janitor::clean_names() %>% 
@@ -39,7 +40,7 @@ Read and clean up the 2018 and 2017 precipitation data
 ```{r precip 2018 2017}
 precip_2018 =
   read_excel(
-    path = path_to_data,
+    path = path_to_data_trash,
     sheet = "2018 Precipitation",
     skip = 1
   ) %>% 
@@ -50,7 +51,7 @@ precip_2018 =
 
 precip_2017 =
   read_excel(
-    path = path_to_data,
+    path = path_to_data_trash,
     sheet = "2017 Precipitation",
     skip = 1
   ) %>% 
@@ -90,5 +91,24 @@ The 'precip_df' dataset contains information for the annual precipitation for th
 
 * The total precipitation in 2018 was **`r precip_df %>% filter(year == 2018) %>% pull(total) %>% sum()` inches**.
 * The total precipitation in 2017 was **`r precip_df %>% filter(year == 2017) %>% pull(total) %>% sum()` inches**.
+
+## Problem 2
+
+Read the NYC Transit dataset
+
+```{r transit_df}
+transit_df =
+  read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
+    select(Line:Entry, Vending, ADA) %>% 
+    janitor::clean_names() %>% 
+    mutate(ada = as.logical(ada)  #mutate ada to logical
+    )
+```
+
+This dataset contains information about the NYC Subway Entrances and Exits. It has information on the routes, subway lines and names, their location (by latitude and longitude), if there is entry in that location, the type of entrance it has, if there are vending machines, and if it is ADA compliant. There are **`r nrow(transit_df)` rows** and **`r ncol(transit_df)` columns** in this dataset. The names have been cleaned in this dataset and the 'ada' variable has been changed from a character to a logical variable.
+This data is not considered tidy because the subway route numbers are individual columns, in order for this to be tidy, the subway route number should be a variable and not individual column values.
+
+* There are **`r transit_df %>% distinct(line, station_name, .keep_all = TRUE) %>% count()`** distinct stations.
+* There are **`r transit_df %>% distinct(line, station_name, .keep_all = TRUE) %>% filter(ada == TRUE) %>% count()`** ADA compliant stations.
 
 
