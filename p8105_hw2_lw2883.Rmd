@@ -112,7 +112,28 @@ This data is not considered tidy because the subway route numbers are individual
 * There are **`r transit_df %>% distinct(line, station_name, .keep_all = TRUE) %>% filter(ada == TRUE) %>% count()`** ADA compliant stations.
 * The proportion of station entrances/exits without vending that allows entrance is **`r transit_df %>% filter(vending == "NO", entry == "YES") %>% count()/count(transit_df)`**.
 
-**need to pivot_longer to finish problem**
+Pivot_longer to make route number and route names as distinct variables. 
+```{r transit_tidy}
+transit_df =
+  mutate(transit_df,
+    route8 = as.character(route8),
+    route9 = as.character(route9),
+    route10 = as.character(route10),
+    route11 = as.character(route11)
+)
+
+transit_tidy_data =
+  pivot_longer(
+    transit_df,
+    route1:route11,
+    names_to = "route numbers",
+    values_to = "route names",
+    names_prefix = "route"
+    )
+```
+
+* There are **`r transit_tidy_data %>% distinct(station_name, route_names = "A", .keep_all = TRUE) %>% count()`** distinct stations.
+* Of the stations that serve the A train, **`r transit_tidy_data %>% distinct(station_name, route_names = "A", .keep_all = TRUE) %>% filter(ada == TRUE) %>% count()`** are ADA compliant.
 
 ## Problem 3
 
@@ -122,6 +143,7 @@ Read and clean pols-month.csv
 Separate 'mon' variable into 'year', 'month', 'day'; create a 'president' variable from the 'prez_dem' and 'prez-gop' variables and remove 'day' variable. **need to change month number to month name**
 
 ```{r pols_df}
+#read in dataset
 pols_df =
   read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>% 
     janitor::clean_names() %>% 
