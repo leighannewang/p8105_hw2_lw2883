@@ -5,7 +5,9 @@ date: "9/24/2020"
 output: github_document
 ---
 
-```{r setup}
+Setting Up
+
+```{r setup, message = FALSE}
 library(tidyverse)
 library(readxl)
 library(haven)
@@ -96,7 +98,7 @@ The 'precip_df' dataset contains information for the annual precipitation for th
 
 Read the NYC Transit dataset
 
-```{r transit_df}
+```{r transit_df, message = FALSE}
 transit_df =
   read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
     select(Line:Entry, Vending, ADA) %>% 
@@ -139,10 +141,9 @@ transit_tidy_data =
 
 FiveThirtyEight data.
 
-Read and clean pols-month.csv
-Separate 'mon' variable into 'year', 'month', 'day'; create a 'president' variable from the 'prez_dem' and 'prez-gop' variables and remove 'day' variable.
+Read and clean pols-month.csv. Separate 'mon' variable into 'year', 'month', 'day'; create a 'president' variable from the 'prez_dem' and 'prez-gop' variables and remove 'day' variable.
 
-```{r pols_df}
+```{r pols_df, message = FALSE, collapse = TRUE}
 # create a df to change the name of the months in the dataset
 month_df =
   tibble(
@@ -176,7 +177,7 @@ pols_month_df =
 Read and clean snp.csv
 Separate date into year, month, date; arrange by year and month; relocate year and month to the front of dataset. 
 
-```{r snp_df}
+```{r snp_df, message = FALSE, collapse = TRUE}
 # create a df to change the name of the months in the dataset
 month_df =
   tibble(
@@ -203,7 +204,7 @@ snp_month_df =
 
 Read, clean, and tidy unemployment.csv
 
-```{r unemployment_df}
+```{r unemployment_df, message = FALSE}
 unemployment_df =
   read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>% 
     janitor::clean_names() %>% 
@@ -235,5 +236,6 @@ We started off with 3 datasets: pols-month.csv, snp.csv, and unemployment.csv.
 * "pols-month" had data on the number of politicians that were democratic or republican from 1947-2015. It contained the date (year and month), the number of republican and democatic senators, representatives, and presidents. There were **`r nrow(pols_df)` rows** and **`r ncol(pols_df)` columns**. 
 * "snp" contained the date of observation (year and month) and the closing value of S&P stock index on that date.  It contained **`r nrow(snp_df)` rows** and **`r ncol(snp_df)` columns**.  
 * "unemployment" contained the date (year and month) and the percentage of unemployment at that date.  It contained **`r nrow(unemployment_df)` rows** and **`r ncol(unemployment_df)` columns**. 
+
 
 The new dataset pols_snp_unemploy_df combines the three previous datasets: pols-month, snp, and unemployment. This data has **`r nrow(pols_snp_unemploy_df)` rows** and **`r ncol(pols_snp_unemploy_df)` columns**. It contains the date (year and month), the number of democratic and republican senators, representatives, and presidents, and the closing value of S&P stock index, and the percentage of unemployment. 
