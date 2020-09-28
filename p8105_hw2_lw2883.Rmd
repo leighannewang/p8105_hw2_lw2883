@@ -110,5 +110,60 @@ This data is not considered tidy because the subway route numbers are individual
 
 * There are **`r transit_df %>% distinct(line, station_name, .keep_all = TRUE) %>% count()`** distinct stations.
 * There are **`r transit_df %>% distinct(line, station_name, .keep_all = TRUE) %>% filter(ada == TRUE) %>% count()`** ADA compliant stations.
+* The proportion of station entrances/exits without vending that allows entrance is **`r transit_df %>% filter(vending == "NO", entry == "YES") %>% count()/count(transit_df)`**.
 
+**need to pivot_longer to finish problem**
 
+## Problem 3
+
+Read the FiveThirtyEight data.
+
+Read and clean pols-month.csv
+Separate 'mon' variable into 'year', 'month', 'day'; create a 'president' variable from the 'prez_dem' and 'prez-gop' variables and remove 'day' variable. **need to change month number to month name**
+
+```{r pols_df}
+pols_df =
+  read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>% 
+    janitor::clean_names() %>% 
+    separate(mon, sep = "-", into = c("year", "month", "day")) %>% 
+    pivot_longer(
+      c(prez_gop, prez_dem),
+      names_to = "president",
+      names_prefix = "prez_"
+    ) %>% 
+    select(-day)
+```
+
+Read and clean snp.csv
+Separate date into year, month, date; arrange by year and month; relocate year and month to the front of dataset. **need to change month number to month name**
+
+```{r snp_df}
+snp_df =
+  read_csv("./data/fivethirtyeight_datasets/snp.csv") %>% 
+    janitor::clean_names() %>% 
+    separate(date, sep = "/", into = c("month", "day", "year")) %>%
+    arrange(year, month) %>% 
+    relocate(year, month) %>% 
+    select(-day)
+```
+
+Read, clean, and tidy unemployment.csv **need to change month to full month name**
+
+```{r unemployment_df}
+unemployment_df =
+  read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>% 
+    janitor::clean_names() %>% 
+    pivot_longer(
+      jan:dec,
+      names_to = "month",
+      values_to = "percentage"
+    )
+```
+
+We started off with 3 datasets: pols-month.csv, snp.csv, and unemployment.csv.
+
+* "pols-month" contained the date (year and month), the number of republican and democatic senators, representatives, and presidents. It contained `r nrow(pols_df)` rows and `r ncol(pols_df)` columns. 
+* "snp" contained the date of observation (year and month) and the closing value of S&P stock index on that date.  It contained `r nrow(snp_df)` rows and `r ncol(snp_df)` columns.  
+* "unemployment" contained the date (year and month) and the percentage of unemployment at that date.  It contained `r nrow(unemployment_df)` rows and `r ncol(unemployment_df)` columns. 
+
+The new dataset...
