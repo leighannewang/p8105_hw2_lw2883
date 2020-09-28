@@ -164,7 +164,7 @@ pols_df =
       names_to = "president",
       names_prefix = "prez_"
     ) %>% 
-    select(-day)
+    select(-day, -value)
 
 # join the month df and pols df to get the month name
 pols_month_df =
@@ -219,10 +219,21 @@ unemployment_df =
   rename(month_name = month)
 ```
 
+Merge the 3 datasets into 1
+```{r merge}
+# join snp into pols
+pols_snp_df = 
+  left_join(pols_month_df, snp_month_df, by = c("year", "month_name"))
+
+# join unemployment into pols_snp
+pols_snp_unemploy_df = 
+  left_join(pols_snp_df, unemployment_df, by = c("year", "month_name"))
+```
+
 We started off with 3 datasets: pols-month.csv, snp.csv, and unemployment.csv.
 
-* "pols-month" contained the date (year and month), the number of republican and democatic senators, representatives, and presidents. It contained `r nrow(pols_df)` rows and `r ncol(pols_df)` columns. 
-* "snp" contained the date of observation (year and month) and the closing value of S&P stock index on that date.  It contained `r nrow(snp_df)` rows and `r ncol(snp_df)` columns.  
-* "unemployment" contained the date (year and month) and the percentage of unemployment at that date.  It contained `r nrow(unemployment_df)` rows and `r ncol(unemployment_df)` columns. 
+* "pols-month" had data on the number of politicians that were democratic or republican from 1947-2015. It contained the date (year and month), the number of republican and democatic senators, representatives, and presidents. There were **`r nrow(pols_df)` rows** and **`r ncol(pols_df)` columns**. 
+* "snp" contained the date of observation (year and month) and the closing value of S&P stock index on that date.  It contained **`r nrow(snp_df)` rows** and **`r ncol(snp_df)` columns**.  
+* "unemployment" contained the date (year and month) and the percentage of unemployment at that date.  It contained **`r nrow(unemployment_df)` rows** and **`r ncol(unemployment_df)` columns**. 
 
-The new dataset...
+The new dataset pols_snp_unemploy_df combines the three previous datasets: pols-month, snp, and unemployment. This data has **`r nrow(pols_snp_unemploy_df)` rows** and **`r ncol(pols_snp_unemploy_df)` columns**. It contains the date (year and month), the number of democratic and republican senators, representatives, and presidents, and the closing value of S&P stock index, and the percentage of unemployment. 
