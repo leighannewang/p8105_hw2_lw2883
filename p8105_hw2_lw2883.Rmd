@@ -64,14 +64,14 @@ precip_2017 =
 Combine annual precipitation
 
 ```{r precip_df}
-#create a df to change the name of the months in the combined annual precipitation dataset
+# create a df to change the name of the months in the combined annual precipitation dataset
 month_df =
   tibble(
     month = 1:12,
     month_name = month.name
   )
 
-#bind the two precipitation data from 2018 and 2017 to combine datasets
+# bind the two precipitation data from 2018 and 2017 to combine datasets
 precip_df =
   bind_rows(precip_2018, precip_2017)
 
@@ -137,29 +137,55 @@ transit_tidy_data =
 
 ## Problem 3
 
-Read the FiveThirtyEight data.
+FiveThirtyEight data.
 
 Read and clean pols-month.csv
-Separate 'mon' variable into 'year', 'month', 'day'; create a 'president' variable from the 'prez_dem' and 'prez-gop' variables and remove 'day' variable. **need to change month number to month name**
+Separate 'mon' variable into 'year', 'month', 'day'; create a 'president' variable from the 'prez_dem' and 'prez-gop' variables and remove 'day' variable.
 
 ```{r pols_df}
-#read in dataset
+# create a df to change the name of the months in the dataset
+month_df =
+  tibble(
+    month = 1:12,
+    month_name = month.name
+  ) %>% 
+  mutate(month = as.character(month))
+
+# read in pols-mon.csv file
 pols_df =
   read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>% 
     janitor::clean_names() %>% 
     separate(mon, sep = "-", into = c("year", "month", "day")) %>% 
+    mutate(
+      month = (recode(month, '01' = "1", '02' = "2", '03' = "3", '04' = "4", '05' = "5", '06' = "6", '07' = "7", '08' = "8", '09' = "9")) 
+    ) %>% 
     pivot_longer(
       c(prez_gop, prez_dem),
       names_to = "president",
       names_prefix = "prez_"
     ) %>% 
     select(-day)
+
+# join the month df and pols df to get the month name
+pols_month_df =
+  left_join(pols_df, month_df, by = "month") %>% 
+  select(-month) %>% 
+  relocate(year, month_name)
 ```
 
 Read and clean snp.csv
-Separate date into year, month, date; arrange by year and month; relocate year and month to the front of dataset. **need to change month number to month name**
+Separate date into year, month, date; arrange by year and month; relocate year and month to the front of dataset. 
 
 ```{r snp_df}
+# create a df to change the name of the months in the dataset
+month_df =
+  tibble(
+    month = 1:12,
+    month_name = month.name
+  ) %>% 
+  mutate(month = as.character(month))
+
+# read in snp.csv data
 snp_df =
   read_csv("./data/fivethirtyeight_datasets/snp.csv") %>% 
     janitor::clean_names() %>% 
@@ -167,9 +193,15 @@ snp_df =
     arrange(year, month) %>% 
     relocate(year, month) %>% 
     select(-day)
+
+# join the month df and snp df to get the month name
+snp_month_df =
+  left_join(snp_df, month_df, by = "month") %>% 
+  select(-month) %>% 
+  relocate(year, month_name)
 ```
 
-Read, clean, and tidy unemployment.csv **need to change month to full month name**
+Read, clean, and tidy unemployment.csv
 
 ```{r unemployment_df}
 unemployment_df =
@@ -179,7 +211,12 @@ unemployment_df =
       jan:dec,
       names_to = "month",
       values_to = "percentage"
-    )
+    ) %>% 
+  mutate(
+    month = (recode(month, 'jan' = "January", 'feb' = "February", 'mar' = "March", 'apr' = "April", 'may' = "May", 'jun' = "June", 'jul' = "July", 'aug' = "August", 'sep' = "September", 'oct' = "October", 'nov' = "November", 'dec' = "December")),
+    year = (as.character(year))
+    ) %>% 
+  rename(month_name = month)
 ```
 
 We started off with 3 datasets: pols-month.csv, snp.csv, and unemployment.csv.
