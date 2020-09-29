@@ -86,7 +86,6 @@ The 'trashwheel_df' dataset contains information from the Mr. Trashwheel trash c
 
 * The median number of sports balls found in the dumpster in 2017 was **`r trashwheel_df %>% filter(year == 2017) %>% pull(sports_balls) %>% median()`**.
 * The total weight of trash collected was **`r trashwheel_df %>% pull(weight_tons) %>% sum()` tons** and **`r trashwheel_df %>% pull(volume_cubic_yards) %>% sum()`** cubic yards.
-* The total number of homes powered is **`r trashwheel_df %>% pull(homes_powered) %>% sum()`**.
 
 #### Precipitation Dataset
 The 'precip_df' dataset contains information for the annual precipitation for the years 2017 and 2018 shown by month. There are a total of `r nrow(precip_df)` observations in our final dataset.
@@ -110,9 +109,23 @@ transit_df =
 This dataset contains information about the NYC Subway Entrances and Exits. It has information on the routes, subway lines and names, their location (by latitude and longitude), if there is entry in that location, the type of entrance it has, if there are vending machines, and if it is ADA compliant. There are **`r nrow(transit_df)` rows** and **`r ncol(transit_df)` columns** in this dataset. The names have been cleaned in this dataset and the 'ada' variable has been changed from a character to a logical variable.
 This data is not considered tidy because the subway route numbers are individual columns, in order for this to be tidy, the subway route number should be a variable and not individual column values.
 
+```{r vending entry}
+#to calculate the proportion of entrances/exits without vending that allow entrance vs. don't allow entrance
+
+vending_entry =
+  transit_df %>% 
+  filter(vending == "NO", entry == "YES") %>% 
+  count()
+
+vending_no_entry =
+  transit_df %>% 
+  filter(vending == "NO") %>% 
+  count()
+```
+
 * There are **`r transit_df %>% distinct(line, station_name, .keep_all = TRUE) %>% count()`** distinct stations.
 * There are **`r transit_df %>% distinct(line, station_name, .keep_all = TRUE) %>% filter(ada == TRUE) %>% count()`** ADA compliant stations.
-* The proportion of station entrances/exits without vending that allows entrance is **`r transit_df %>% filter(vending == "NO", entry == "YES") %>% count()/count(transit_df)`**.
+* The proportion of station entrances/exits without vending that allows entrance is **`r vending_entry/vending_no_entry`**. 
 
 Pivot_longer to make route number and route names as distinct variables. 
 ```{r transit_tidy}
@@ -128,14 +141,14 @@ transit_tidy_data =
   pivot_longer(
     transit_df,
     route1:route11,
-    names_to = "route numbers",
-    values_to = "route names",
+    names_to = "route_numbers",
+    values_to = "route_names",
     names_prefix = "route"
     )
 ```
 
-* There are **`r transit_tidy_data %>% distinct(station_name, route_names = "A", .keep_all = TRUE) %>% count()`** distinct stations.
-* Of the stations that serve the A train, **`r transit_tidy_data %>% distinct(station_name, route_names = "A", .keep_all = TRUE) %>% filter(ada == TRUE) %>% count()`** are ADA compliant.
+* There are **`r transit_tidy_data %>% filter(route_names == "A") %>% distinct(station_name, .keep_all = TRUE) %>% count()`** distinct stations that serve the A train.
+* Of the stations that serve the A train, **`r transit_tidy_data %>% filter(route_names == "A") %>% distinct(station_name, .keep_all = TRUE) %>% filter(ada == TRUE) %>% count()`** are ADA compliant.
 
 ## Problem 3
 
@@ -164,7 +177,8 @@ pols_df =
       c(prez_gop, prez_dem),
       names_to = "president",
       names_prefix = "prez_"
-    ) %>% 
+      ) %>% 
+    filter(value == 1) %>%
     select(-day, -value)
 
 # join the month df and pols df to get the month name
@@ -233,7 +247,7 @@ pols_snp_unemploy_df =
 
 We started off with 3 datasets: pols-month.csv, snp.csv, and unemployment.csv.
 
-* "pols-month" had data on the number of politicians that were democratic or republican from 1947-2015. It contained the date (year and month), the number of republican and democatic senators, representatives, and presidents. There were **`r nrow(pols_df)` rows** and **`r ncol(pols_df)` columns**. 
+* "pols-month" had data on the number of politicians that were democratic or republican from 1947-2015. It contained the date (year and month), the number of republican and democatic senators, representatives, and presidents. There were **`r nrow(pols_month_df)` rows** and **`r ncol(pols_month_df)` columns**. 
 * "snp" contained the date of observation (year and month) and the closing value of S&P stock index on that date.  It contained **`r nrow(snp_df)` rows** and **`r ncol(snp_df)` columns**.  
 * "unemployment" contained the date (year and month) and the percentage of unemployment at that date.  It contained **`r nrow(unemployment_df)` rows** and **`r ncol(unemployment_df)` columns**. 
 
