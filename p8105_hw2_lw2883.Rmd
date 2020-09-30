@@ -147,8 +147,8 @@ transit_tidy_data =
     )
 ```
 
-* There are **`r transit_tidy_data %>% filter(route_names == "A") %>% distinct(station_name, .keep_all = TRUE) %>% count()`** distinct stations that serve the A train.
-* Of the stations that serve the A train, **`r transit_tidy_data %>% filter(route_names == "A") %>% distinct(station_name, .keep_all = TRUE) %>% filter(ada == TRUE) %>% count()`** are ADA compliant.
+* There are **`r transit_tidy_data %>% filter(route_names == "A") %>% distinct(station_name, line, .keep_all = TRUE) %>% count()`** distinct stations that serve the A train.
+* Of the stations that serve the A train, **`r transit_tidy_data %>% filter(route_names == "A") %>% distinct(station_name, line, .keep_all = TRUE) %>% filter(ada == TRUE) %>% count()`** are ADA compliant.
 
 ## Problem 3
 
@@ -178,7 +178,7 @@ pols_df =
       names_to = "president",
       names_prefix = "prez_"
       ) %>% 
-    filter(value == 1) %>%
+    filter(value != 0) %>%
     select(-day, -value)
 
 # join the month df and pols df to get the month name
